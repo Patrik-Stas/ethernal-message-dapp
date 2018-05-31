@@ -1,11 +1,7 @@
 import {Button, Divider, Form, Grid, Input, Message, Segment, Dimmer, Loader} from 'semantic-ui-react';
 import React, {Component} from 'react';
-import util from 'util';
 import EthernityBoard from '../blockchain/ethernityBoard'
 import {weiToReadableEthString} from "../tools";
-import {Link} from 'react-router-dom'
-// import countdown from 'countdown';
-// import countdown from 'moment-countdown';
 import Countdown from 'react-countdown-now';
 import moment from "moment";
 import {BigNumber} from "bignumber.js";
@@ -103,7 +99,8 @@ class MessageInput extends Component {
 
 
     render() {
-        const canBeEthernalized = this.state.userHasMetamask && this.state.hasExpired && this.state.isLoggedInMetamask;
+        const hasMetamaskSetup = this.state.userHasMetamask && this.state.isLoggedInMetamask;
+        const canBeEthernalized = hasMetamaskSetup && this.state.hasExpired;
         console.log(`Rerendering ${this.state.hasExpired}`);
         const contractLink = this.ethernityBoard.getEtherscanLink(this.ethernityBoard.contractAddress);
         const classes = "ui fluid icon";
@@ -112,78 +109,10 @@ class MessageInput extends Component {
                 <Dimmer active={this.state.loading} inverted>
                     <Loader/>
                 </Dimmer>
-                <h2 style={{textAlign: "center"}}>Message et<span style={{color: "#777777"}}>h</span>ernalization</h2>
+                <h1 style={{textAlign: "center"}}>Message et<span style={{color: "#777777"}}>h</span>ernalization</h1>
+                <Divider/>
                 <Form error={this.state.txError}>
                     <Grid>
-                        <Grid.Row>
-                            <Grid.Column width={16}>
-                                <ul>
-                                    <li>In order to ethernalize message:</li>
-                                    <ul>
-                                        <li>you need to have <b>installed Metamask</b> extension
-                                            {this.state.userHasMetamask ? (
-                                                <span> (<i className="check green icon"/> Metamask detected)</span>
-                                            ) : (
-                                                <span> (<i className="exclamation triangle red icon"></i> Metamask not detected in your browser. Get it here <a
-                                                    href="https://metamask.io/">Metamask</a>),</span>
-                                            )}
-                                        </li>
-                                        <li>in your Metamask, MainNet Network have to be selected.</li>
-                                        <li>your active Metamask account needs to have enough <b>ether to cover the
-                                            price</b>.
-                                        </li>
-                                    </ul>
-                                    <br/>
-                                    <li>Before you submit transaction:</li>
-                                    <ul>
-                                        <li>Use <b>Preview button</b> to check how it will appear. There's no refunds or
-                                            edits. Ethernal message is eternal.
-                                        </li>
-                                        <li>verify that the <b>website link works</b> correctly, if you are including it
-                                            in your message
-                                        </li>
-                                    </ul>
-                                    <br/>
-                                    <li>Note that:</li>
-                                    <ul>
-                                        <li>Everything you type in will be stored in blockchain unchanged, however, <b>offensive
-                                            content</b> will censored on the website. Hyperlinks
-                                            to <b>malicious websites</b> will be deactivated.
-                                        </li>
-                                        <li>I recommend using <b><a
-                                            href="https://ethgasstation.info/">https://ethgasstation.info</a> to decide</b> for
-                                            what gas price you should aim for. If you use
-                                            low gas price, your transaction will take longer time to process and might
-                                            fail if someone else sends message with higher gas price
-                                            in the meantime. <b>If your transaction fails, you'll get your ether
-                                                back.</b>
-                                        </li>
-                                        <li>Take in consideration that <b>the more text you submit, the more gas it will
-                                            cost</b>. The biggest message I succeeded sending on TestNet was about
-                                            100kb.
-                                        </li>
-                                    </ul>
-                                    <br/>
-                                    <li>After you ethernalize message:</li>
-                                    <ul>
-                                        <li>it can take up to <b>few minutes</b> until your message appears (the
-                                            transaction must be confirmed by Ethereum network),
-                                        </li>
-                                        <li>the message will be <b>stored in <a href={contractLink}>smart
-                                            contract</a></b> on Ethereum blockchain,
-                                        </li>
-                                        <li>the message will be <b>displayed below</b> as the latest message - until
-                                            someone else ethernalizes another message,
-                                        </li>
-                                        <li>the message will be displayed in <b><Link
-                                            to="/history">History</Link></b> section.
-                                        </li>
-                                    </ul>
-                                </ul>
-                            </Grid.Column>
-                        </Grid.Row>
-                        <Divider/>
-
                         <Grid.Row>
                             <Grid.Column width={6}>
                                 <div className="field">
@@ -238,57 +167,52 @@ class MessageInput extends Component {
                         </Grid.Row>
 
                         <Grid.Row>
-                            <Grid.Column width={8}>
-                                <h2>Price: {weiToReadableEthString(this.state.currentPrice, 10)} ETH</h2>
+                            <Grid.Column>
+                                {
+                                    this.state.userHasMetamask && this.state.userHasMetamask ? (
+                                        <li><i className="green check icon"/>Metamask detected, looks good.</li>
+                                    ) : (
+                                        <li><i className="red exclamation triangle icon"/>Either you don't have Metamask installed, or you are not logged into your Metamask account.</li>
+                                    )
+                                }
+                                <li><i className="grey info circle icon"/>Tip: Use <a href="https://ethgasstation.info/">https://ethgasstation.info</a> to adjust Gas price in Metamask. High gas price = quick ethernalization.</li>
+                                <li><i className="grey info circle icon"/>Top: The more text you submit, the more gas you'll spend.</li>
                             </Grid.Column>
-                            <Grid.Column width={8}>
+                        </Grid.Row>
+                        <Grid.Row>
+                            <Grid.Column>
+                                <Divider/>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row id="inputPriceRow">
+                            <Grid.Column width={5}>
+                                <p><i className="blue ethereum icon"/>Price: {weiToReadableEthString(this.state.currentPrice, 10)} ETH</p>
+                            </Grid.Column>
+                            <Grid.Column width={5}>
+                                {hasMetamaskSetup &&
+                                (
+                                    !this.state.hasExpired ? (
+                                        <span><i className="orange exclamation triangle icon"/>Time left:
+                                        <Countdown date={this.state.expirationTime}
+                                                   onComplete={this.onCountdownFinished}
+                                                   daysInHours={true}/>
+                                            <span className="infoText"><i className="info circle icon"/>Why?</span></span>
+                                    ) : (
+                                        <span><i className="green check icon"/>Ready to ethernalize<span className="infoText"><i className="info circle icon"/>Why?</span></span>
+                                    )
+                                )
+                                }
+                            </Grid.Column>
+
+                            <Grid.Column width={6}>
                                 <Button primary style={{float: "right"}}
                                         className={!canBeEthernalized ? ("disabled") : ""}
                                         onClick={this.handleEthernalizeClicked}>Ethernalize</Button>
-                                <Button style={{float: "right"}} onClick={this.handlePreviewClicked}>Preview</Button>
+                                <Button style={{float: "right"}} onClick={this.handlePreviewClicked}>Quick
+                                    Preview</Button>
                             </Grid.Column>
                         </Grid.Row>
 
-                        <Grid.Row>
-                            <Grid.Column width={8}>
-                                {
-                                    this.state.userHasMetamask ? (
-                                        <span><i class="check icon"></i>Metamask detected</span>
-                                    ) : (
-                                        <span><i class="exclamation triangle icon"></i>Metamask not detected. Please install Metamask plugin.</span>
-                                    )
-                                }
-                            </Grid.Column>
-                        </Grid.Row>
-
-                        {!!this.state.userHasMetamask && (
-                            <Grid.Row>
-                                <Grid.Column width={8}>
-                                    {
-                                        !!this.state.isLoggedInMetamask ? (
-                                            <span><i class="check icon"></i>Logged in Metamask</span>
-                                        ) : (
-                                            <span><i class="exclamation triangle icon"></i>Not logged into Metamask account. Please, log in.</span>
-                                        )
-                                    }
-                                </Grid.Column>
-                            </Grid.Row>
-                        )}
-
-                        <Grid.Row>
-                            <Grid.Column width={8}>
-                                {
-                                    !this.state.hasExpired ? (
-                                        <span><i class="exclamation triangle  icon"></i>Next message can be ethernalized after
-                                        <Countdown date={this.state.expirationTime}
-                                                   onComplete={this.onCountdownFinished}/>
-                                            </span>
-                                    ) : (
-                                        <span><i class="check icon"></i>Ready to ethernalize new message!</span>
-                                    )
-                                }
-                            </Grid.Column>
-                        </Grid.Row>
                     </Grid>
 
                     <Message error>
@@ -314,7 +238,6 @@ class MessageInput extends Component {
                             </ul>
                         </ul>
                     </Message>
-
                     }
                 </Form>
             </Segment>

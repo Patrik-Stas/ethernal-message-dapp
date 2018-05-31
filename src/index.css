@@ -63,8 +63,14 @@ body {
   /*border: 1px solid blue;*/
 }
 
+.infoText {
+  font-size: 0.6em;
+  color: darkgrey;
+}
 
-
+#inputPriceRow {
+  font-size: 1.6rem;
+}
 
 .messageCaptionRow{
   font-size: 1.25rem;

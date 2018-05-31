@@ -7725,6 +7725,13 @@ react-textfit@^1.1.0:
     process "^0.11.9"
     prop-types "^15.5.10"
 
+react-tooltip@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/react-tooltip/-/react-tooltip-3.6.0.tgz#61fd8502540d91fb3397e3fc90b487c0842c4189"
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.6.0"
+
 react@~16.3.2:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react/-/react-16.3.2.tgz#fdc8420398533a1e58872f59091b272ce2f91ea9"
