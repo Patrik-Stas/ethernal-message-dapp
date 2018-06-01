@@ -1,7 +1,7 @@
 const abi = require('ethereumjs-abi');
 
-const parameterTypes = ["uint", "uint32", "uint32"];
-const parameterValues = ["10000000000000", "1618", "1000"];
+const parameterTypes = ["uint", "uint32", "uint32", "uint32"];
+const parameterValues = ["10000000000000", "1618", "1000", (3600*6).toString()];
 
 const  encoded = abi.rawEncode(parameterTypes, parameterValues);
 

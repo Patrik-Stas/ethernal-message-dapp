@@ -1,4 +1,4 @@
-import {Button, Divider, Form, Grid, Input, Message, Segment, Dimmer, Loader} from 'semantic-ui-react';
+import {Button, Dimmer, Divider, Form, Grid, Input, Loader, Message, Segment} from 'semantic-ui-react';
 import React, {Component} from 'react';
 import EthernityBoard from '../blockchain/ethernityBoard'
 import {weiToReadableEthString} from "../tools";

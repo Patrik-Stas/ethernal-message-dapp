@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Grid} from 'semantic-ui-react';
 import {Bar} from 'react-chartjs-2';
-import ordinal from 'ordinal';
 
 class PriceGraph extends Component {
 

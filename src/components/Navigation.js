@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Link, withRouter} from 'react-router-dom'
-import {Button} from 'semantic-ui-react'
+
 class Navigation extends Component {
 
     render() {

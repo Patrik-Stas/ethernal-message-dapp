@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Table, Grid} from 'semantic-ui-react';
+import {Grid, Table} from 'semantic-ui-react';
 
 class FuturePrice extends Component {
 

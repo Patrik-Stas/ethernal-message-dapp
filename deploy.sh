@@ -26,7 +26,7 @@ echo -e "$GREEN Deleting the old dist locally.$NC"
 rm -r "$dist_local_location" ||:
 
 echo -e "$GREEN Building new dist.$NC"
-yarn bundle:dev
+yarn bundle:prod
 
 echo -e "$GREEN Packaging deployment artifact.$NC"
 tar -cvzf "$BUILD_ARTIFACT" "./dist"

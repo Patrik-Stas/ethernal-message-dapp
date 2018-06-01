@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
-import {Grid, Divider} from 'semantic-ui-react'
-import FuturePrice from "./FuturePrice";
+import {Grid} from 'semantic-ui-react'
 import EthernityBoard from "../blockchain/ethernityBoard";
 
 class Info extends Component {

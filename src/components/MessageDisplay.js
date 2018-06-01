@@ -4,7 +4,6 @@ import * as tools from "../tools";
 import EthernityBoard from "../blockchain/ethernityBoard";
 import ordinal from 'ordinal';
 import moment from "moment/moment";
-import util from 'util';
 
 class MessageDisplay extends Component {
 
