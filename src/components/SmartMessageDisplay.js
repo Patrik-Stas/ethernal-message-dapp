@@ -8,7 +8,7 @@ class SmartMessageDisplay extends Component {
 
     constructor(props) {
         super();
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
         this.state = {
             displayedMessage: ' ... Loading. Make sure you have selected MainNet Network in your Metamask ...',
             displayedAuthor: '',
@@ -24,31 +24,28 @@ class SmartMessageDisplay extends Component {
 
 
         this.loadUpMessage = async () => {
-            let message = {};
+            let message = {
+                displayedItemIndex: '0',
+                sourceAddr: '0x123',
+                authorName: 'stub',
+                msg: 'No messages found. But once there will be ethernalized message, the content will display ' +
+                'somewhat like this text right here!',
+                value: '0',
+                title: 'The message title',
+                time: '954813782',
+                link: 'www.ethernalmessage.com'
+            };
             try {
-                this.setState({lastMessageIndex: (parseInt(await this.ethernityBoard.getMessagesCount(), 10)) - 1});
+                this.setState({lastMessageIndex: (parseInt(await this.web3.getMessagesCount(), 10)) - 1});
                 if (this.state.displayedItemIndex > this.state.lastMessageIndex) {
                     this.setState({displayedItemIndex: this.state.lastMessageIndex});
                 }
                 if (this.state.displayedItemIndex >= 0) {
-                    message = await this.ethernityBoard.getNthMessage(this.state.displayedItemIndex);
-                }
-                else {
-                    message = {
-                        displayedItemIndex: '0',
-                        sourceAddr: '0x123',
-                        authorName: 'stub',
-                        msg: 'No messages found. But once there will be ethernalized message, the content will display ' +
-                        'somewhat like this text right here!',
-                        value: '0',
-                        title: 'The message title',
-                        time: '954813782',
-                        link: 'www.ethernalmessage.com'
-                    }
+                    message = await this.web3.getNthMessage(this.state.displayedItemIndex);
                 }
             }
             catch (error) {
-                message = {msg: `Problem loading message to be displayed has occured.`}
+                console.error("Error loading message from blockchain");
             }
             this.setState({
                 displayedItemIndex: message.itemNumber,
@@ -83,7 +80,7 @@ class SmartMessageDisplay extends Component {
                 );
 
         return (
-            <MessageDisplay contractAddress={this.ethernityBoard.contractAddress}
+            <MessageDisplay contractAddress={this.web3.contractAddress}
                             sourceAddress={this.state.displayedSourceAddress}
                             messageStyle={this.state.displayedMessageStyle}
                             message={this.state.displayedMessage}

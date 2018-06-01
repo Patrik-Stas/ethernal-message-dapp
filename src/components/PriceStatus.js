@@ -8,7 +8,7 @@ class PriceStatus extends Component {
 
     constructor(props) {
         super(props);
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
         this.state = {
             currentPrice: 0,
             nextPrice: 0,
@@ -25,14 +25,14 @@ class PriceStatus extends Component {
     }
 
     loadCurrentPrice = async () => {
-        const currentPrice = await this.ethernityBoard.getCurrentPrice();
+        const currentPrice = await this.web3.getCurrentPrice();
         this.setState({currentPrice});
         return currentPrice;
     };
 
     loadNextPrice = async () => {
-        const messageCount = await this.ethernityBoard.getMessagesCount();
-        const nextPrice = await this.ethernityBoard.getPriceOfNthMessage(messageCount + 1);
+        const messageCount = await this.web3.getMessagesCount();
+        const nextPrice = await this.web3.getPriceOfNthMessage(messageCount + 1);
         this.setState({nextPrice});
         return nextPrice;
     };

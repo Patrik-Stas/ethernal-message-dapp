@@ -13,7 +13,7 @@ class MessageInput extends Component {
 
     constructor(props) {
         super(props);
-        this.ethernityBoard = new EthernityBoard();
+        this.ethBook = new EthernityBoard();
         this.state = {
             userMessage: '',
             userName: '',
@@ -34,7 +34,7 @@ class MessageInput extends Component {
             this.setState({txSubmitted: false});
             this.setState({loading: true});
             try {
-                await this.ethernityBoard.writeMessage(
+                await this.ethBook.writeMessage(
                     this.state.userMessage,
                     this.state.title,
                     this.state.userName,
@@ -67,10 +67,10 @@ class MessageInput extends Component {
 
 
     async componentDidMount() {
-        const msToExpiry = await this.ethernityBoard.getSecondsToExpiry() * 1000;
-        const isLoggedInMetamask = await this.ethernityBoard.isLoggedInMetamask();
+        const msToExpiry = await this.ethBook.getSecondsToExpiry() * 1000;
+        const isLoggedInMetamask = await this.ethBook.isLoggedInMetamask();
         if (isLoggedInMetamask) {
-            this.setState({currentAccount: await(this.ethernityBoard.getCurrentAccount())});
+            this.setState({currentAccount: await(this.ethBook.getCurrentAccount())});
         }
         this.setState({isLoggedInMetamask});
         const hasExpired = 0 >= msToExpiry;
@@ -81,8 +81,8 @@ class MessageInput extends Component {
             const expirationTime = BigNumber(moment().format('x')).plus(msToExpiry).toString();
             this.setState({hasExpired: false, expirationTime: parseInt(expirationTime)});
         }
-        this.setState({userHasMetamask: this.ethernityBoard.doesUserHasMetamask()});
-        this.setState({currentPrice: (await this.ethernityBoard.getCurrentPrice())});
+        this.setState({userHasMetamask: this.ethBook.isMetamaskInBrowser});
+        this.setState({currentPrice: (await this.ethBook.getCurrentPrice())});
 
     }
 

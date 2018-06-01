@@ -4,20 +4,22 @@ import * as tools from "../tools";
 import EthernityBoard from "../blockchain/ethernityBoard";
 import ordinal from 'ordinal';
 import moment from "moment/moment";
+import util from 'util';
 
 class MessageDisplay extends Component {
 
     constructor(props) {
         super();
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
     }
 
     render() {
-        const contractLink = this.ethernityBoard.getEtherscanLink(this.props.contractAddress);
-        const senderLink = this.ethernityBoard.getEtherscanLink(this.props.sourceAddress);
+        const contractLink = this.web3.getEtherscanLink(this.props.contractAddress);
+        const senderLink = this.web3.getEtherscanLink(this.props.sourceAddress);
 
         const unixTime = parseInt(this.props.unixTime, 10) * 1000; // JS got unixtime with seconds
         const messageDate = moment(unixTime).format("HH:mm:ss, MMMM Do YYYY");
+        // console.log(`About to render message from props ${util.inspect(this.props)}`);
         return (
             <div id="messageGrid">
                 <Grid>

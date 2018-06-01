@@ -13,7 +13,7 @@ class Home extends Component {
 
     constructor() {
         super();
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
         this.state = {
             currentPrice: '0',
             displayedItemNumber: '0',
@@ -41,9 +41,9 @@ class Home extends Component {
     }
 
     async componentDidMount() {
-        const currentPrice = await this.ethernityBoard.getCurrentPrice();
-        const messagesCount = await this.ethernityBoard.getMessagesCount();
-        const priceList25 = await this.ethernityBoard.getPriceListInEth(25);
+        const currentPrice = await this.web3.getCurrentPrice();
+        const messagesCount = await this.web3.getMessagesCount();
+        const priceList25 = await this.web3.getPriceListInEth(25);
         this.setState({messagesCount});
         this.setState({currentPrice});
         this.setState({priceList25});

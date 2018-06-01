@@ -1,7 +1,8 @@
-import web3 from "./blockchain/engrave-web3";
+import ethernityBoard from './blockchain/ethernityBoard';
 
 export function weiToReadableEthString(valueWei, length=8) {
-    return web3.utils.fromWei(valueWei.toString(), 'ether').substring(0, length);
+    const ethBoard = new ethernityBoard();
+    return ethBoard.getWeb3().utils.fromWei(valueWei.toString(), 'ether').substring(0, length);
 }
 
 export function assureLinkProtocol(link) {

@@ -9,7 +9,7 @@ class HistoryRow extends Component {
 
     constructor(props) {
         super();
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
 
         this.state = {
             message: ""
@@ -22,7 +22,7 @@ class HistoryRow extends Component {
     }
 
     async componentDidMount() {
-        const message = await this.ethernityBoard.getNthMessage(this.props.number);
+        const message = await this.web3.getNthMessage(this.props.number);
         this.setState({message});
     }
 

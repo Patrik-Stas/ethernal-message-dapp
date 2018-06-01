@@ -1,9 +1,7 @@
 import ethernalContractInterface from '../contract/EthernalMessageBook.interface'
-// import web3 from "./engrave-web3";
 import {BigNumber} from "bignumber.js";
-import web3 from "./engrave-web3";
-// import Web3 from "web3/index";
-
+import * as web3Utils from "./engrave-web3";
+const util = require('util');
 
 
 export default class EthernityBoard {
@@ -11,58 +9,104 @@ export default class EthernityBoard {
     static instance;
 
     constructor() {
-
-        if (this.instance) {
-            return this.instance;
+        if (EthernityBoard.instance) {
+            return EthernityBoard.instance;
         }
+        console.log("Singleton instance of EthernityBoard was created");
+        EthernityBoard.instance = this;
         this.contractAddress = process.env.contract_address;
-        this.ethernityBoard = {};
         this.cachedMessages = {};
         this.multNumerator = 0;
         this.multDenominator = 0;
 
-        // this.instance = this;
-        console.log(`Ethernity board constructor. Web3 = ${web3.version}`);
+        this.isMetamaskInBrowser = false;
+        this.metamaskWeb3InstanceNetworkId = -1;
+        this.isMetamaskWeb3InstanceUsed = false;
+
+
+        console.log("Web3 instance was not yet created. Going to do so now.");
+        this.web3 = web3Utils.getWeb3WithCustomProvider(process.env.provider_url);
+        // console.log(`Created custom web3. See it ${util.inspect(this.web3)}`);
+        console.log(`Web3 is at version ${this.web3.version}`);
+
+        if (web3Utils.isWeb3InjectedInToBrowser()) {
+            console.log("Found Metamaks in the browser. Will rehook web3 after we check right network is selected");
+            this.isMetamaskInBrowser = true;
+            const metamaskWeb3 = web3Utils.getWeb3WithMetamaskProvider();
+            metamaskWeb3.eth.net.getId()
+                .then(this.rewireToMetamaskIfPossible.bind(this));
+        }
+        console.log(`Created web3 instanced, at version = ${this.web3.version}`);
         try {
-            this.ethernityBoard = new web3.eth.Contract(
+            this.contract = new this.web3.eth.Contract(
                 JSON.parse(ethernalContractInterface),
                 this.contractAddress
             );
         }
-        catch (error){
+        catch (error) {
             console.log("Contract was not loaded. Your browser has metamask on wrong network, or application has misconfigured contract address.")
         }
     }
 
+    getWeb3() {
+        return this.web3;
+    }
+
+    async rewireToMetamaskIfPossible(netId) {
+        console.log(`Promise with Network ID returned!. Metamask seem to be hooked to networok ${netId}. Expected is ${process.env.expected_network}`);
+        this.metamaskWeb3InstanceNetworkId = netId;
+        if (netId === process.env.expected_network) {
+            console.log("The network of metamask web3 is hooked to right network. Will use metamask web3 instance.");
+            this.web3 = web3Utils.getWeb3WithMetamaskProvider();
+            try {
+                this.contract = new this.web3.eth.Contract(
+                    JSON.parse(ethernalContractInterface),
+                    this.contractAddress
+                );
+            }
+            catch (error) {
+                console.log("Contract was not loaded. Your browser has metamask on wrong network, or application has misconfigured contract address.")
+            }
+            // console.log(`Rewired metamask web3. See it ${util.inspect(this.web3)}`);
+            this.isMetamaskWeb3InstanceUsed = true;
+        }
+        else {
+            console.log(`Won't use Metamask web3, because required network ID is ${process.env.expected_network}`)
+        }
+    }
+
+    async asureWebIsLoaded() {
+
+    }
+
+    isWeb3RunningAgainstExpectedNetwork(){
+        return this.metamaskWeb3InstanceNetworkId.toString() === process.env.expected_network;
+    }
 
     async getNumerator() {
+        await this.asureWebIsLoaded();
         if (!this.multNumerator) {
-            this.multNumerator = await this.ethernityBoard.methods.multNumerator().call();
+            this.multNumerator = await this.contract.methods.multNumerator().call();
         }
         return this.multNumerator
     }
 
     async getDenominator() {
+        await this.asureWebIsLoaded();
         if (!this.multDenominator) {
-            this.multDenominator = await this.ethernityBoard.methods.multDenominator().call();
+            this.multDenominator = await this.contract.methods.multDenominator().call();
         }
         return this.multDenominator;
     }
 
-    doesUserHasMetamask() {
-        return (typeof window !== 'undefined' && typeof window.web3 !== 'undefined');
-    }
 
     getContractLink() {
         return this.getEtherscanLink(this.contractAddress);
     }
 
-    async getExpirationTime() {
-        return await this.ethernityBoard.methods.expirationTime().call();
-    }
-
     async getSecondsToExpiry() {
-        return parseInt(await this.ethernityBoard.methods.getSecondsToExpiration().call());
+        await this.asureWebIsLoaded();
+        return parseInt(await this.contract.methods.getSecondsToExpiration().call());
     }
 
     getEtherscanLink(address) {
@@ -70,13 +114,15 @@ export default class EthernityBoard {
     }
 
     async getStartingPrice() {
+        await this.asureWebIsLoaded();
         if (!this.startingPrice) {
-            this.startingPrice = await this.ethernityBoard.methods.startingPrice().call()
+            this.startingPrice = await this.contract.methods.startingPrice().call()
         }
         return this.startingPrice;
     }
 
     async getPriceOfNthMessage(n) {
+        await this.asureWebIsLoaded();
         let price = BigNumber(await this.getStartingPrice());
         console.log(`Starting price ${price}`);
         for (let i = 0; i < n; i++) {
@@ -87,12 +133,14 @@ export default class EthernityBoard {
     }
 
     async getMessagesCount() {
-        return parseInt(await this.ethernityBoard.methods.getMessagesCount().call(), 10);
+        await this.asureWebIsLoaded();
+        return parseInt(await this.contract.methods.getMessagesCount().call(), 10);
     }
 
     async getNthMessage(msgIndex) {
+        await this.asureWebIsLoaded();
         if (!this.cachedMessages[msgIndex]) {
-            const message = await this.ethernityBoard.methods.messages(msgIndex).call();
+            const message = await this.contract.methods.messages(msgIndex).call();
             message['itemNumber'] = msgIndex;
             this.cachedMessages[msgIndex] = message;
         }
@@ -100,6 +148,7 @@ export default class EthernityBoard {
     };
 
     async getPriceOfNthMessage(n) {
+        await this.asureWebIsLoaded();
         let price = BigNumber(await this.getStartingPrice());
         for (let i = 0; i < n; i++) {
             price = price.times(await this.getNumerator()).dividedBy(await this.getDenominator());
@@ -108,6 +157,7 @@ export default class EthernityBoard {
     }
 
     async getPriceListInEth(upToN) {
+        await this.asureWebIsLoaded();
         let priceWei = BigNumber(await this.getStartingPrice());
         let pricesWei = [];
         // let priceEth = web3.utils.fromWei(priceWei.toString(), 'ether') ;
@@ -117,13 +167,14 @@ export default class EthernityBoard {
             priceWei = priceWei.times(await this.getNumerator()).dividedBy(await this.getDenominator());
             pricesWei.push(priceWei);
         }
-        return pricesWei.map((val) => {
+        return pricesWei.map(function(val) {
             let wholeNumber = val.decimalPlaces(0).toString();
-            return web3.utils.fromWei(wholeNumber , 'ether')
-        });
+            return this.web3.utils.fromWei(wholeNumber , 'ether');
+        }.bind(this));
     }
 
     async getLastMessage() {
+        await this.asureWebIsLoaded();
         const messagesCount = await this.getMessagesCount();
         if (messagesCount > 0) {
             return this.getNthMessage(messagesCount - 1);
@@ -134,26 +185,31 @@ export default class EthernityBoard {
     }
 
     async getCurrentPrice() {
-        return await this.ethernityBoard.methods.price().call();
+        await this.asureWebIsLoaded();
+        return await this.contract.methods.price().call();
     }
 
     async isLoggedInMetamask() {
+        await this.asureWebIsLoaded();
         return !!(await this.getCurrentAccount())
     }
 
     async getCurrentAccount() {
-        const accounts = await web3.eth.getAccounts();
+        await this.asureWebIsLoaded();
+        const accounts = await this.web3.eth.getAccounts();
         return accounts[0]; // metamask return currently used account on index 0
     }
 
     async getCurrentAccountBalance() {
+        await this.asureWebIsLoaded();
         const account = await this.getCurrentAccount();
         console.log(`account = ${account}`);
-        return await web3.eth.getBalance(account);
+        return await this.web3.contract.getBalance(account);
     }
 
     async getSummary() {
-        const summary = await this.ethernityBoard.methods.getSummary().call();
+        await this.asureWebIsLoaded();
+        const summary = await this.contract.methods.getSummary().call();
         return {
             numerator: summary[0],
             denominator: summary[1],
@@ -162,8 +218,9 @@ export default class EthernityBoard {
         }
     }
 
-    writeMessage(message, title, username, link, weiPrice, fromAccount) {
-        return this.ethernityBoard.methods
+    async writeMessage(message, title, username, link, weiPrice, fromAccount) {
+        await this.asureWebIsLoaded();
+        return this.contract.methods
             .writeMessage(message, title, username, link, "{}")
             .send({
                 from: fromAccount,

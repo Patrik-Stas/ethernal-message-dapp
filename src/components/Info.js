@@ -15,7 +15,7 @@ class Info extends Component {
             this.setState({displayPriceList:!this.state.displayPriceList});
         };
 
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
     }
 
 
@@ -36,7 +36,7 @@ class Info extends Component {
                     <Grid.Column width={6}>
                         <h2><i className="icon signal" style={{marginRight: 10}}/>The 1.618 scarcity</h2>
                         <p>Having message <i>ethernalized</i> is scarce. The price is rising exponentially - every time new message is <i>ethernalized</i> by someone,
-                            the <a href={this.ethernityBoard.getContractLink()}><b>smart contract</b></a> storing <i>ethernalized messages</i> starts to
+                            the <a href={this.web3.getContractLink()}><b>smart contract</b></a> storing <i>ethernalized messages</i> starts to
                             require <b><a href="https://www.google.com/search?q=golden+ratio">1.618 times</a></b> more
                             ether for ethernalizing next message.</p> <p><b>The first message has started at price of 0.00001 ether</b>. At
                         35th message, the smart contract won't let in anything under staggering <b>127 ether</b> per message.</p><p> How far are we gonna get?</p>

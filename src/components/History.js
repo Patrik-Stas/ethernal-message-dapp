@@ -21,12 +21,12 @@ class History extends Component {
             denominator: 1,
             startingPrice: 0,
         };
-        this.ethernityBoard = new EthernityBoard();
+        this.web3 = new EthernityBoard();
         BigNumber.config({DECIMAL_PLACES: 0})
     }
 
     async componentDidMount() {
-        const summary = await this.ethernityBoard.getSummary();
+        const summary = await this.web3.getSummary();
         this.setState({
             numerator: summary.numerator,
             denominator: summary.denominator,
@@ -34,7 +34,7 @@ class History extends Component {
             messagesCount: parseInt(summary.messagesCount),
         });
         // console.log(`Component was mounted. Message count loaded is ${JSON.stringify(summary)}`);
-        const currentPrice = await this.ethernityBoard.getCurrentPrice();
+        const currentPrice = await this.web3.getCurrentPrice();
         this.setState({currentPrice: currentPrice});
 
     }
