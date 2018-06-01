@@ -7,17 +7,18 @@ export default class EthernityBoard {
     static instance;
 
     constructor() {
-
-        if (this.instance) {
-            return this.instance;
-        }
+        //
+        // if (this.instance) {
+        //     return this.instance;
+        // }
         this.contractAddress = process.env.contract_address;
         this.ethernityBoard = {};
         this.cachedMessages = {};
         this.multNumerator = 0;
         this.multDenominator = 0;
 
-        this.instance = this;
+        // this.instance = this;
+        console.log(`Ethernity board constructor. Web3 = ${web3.version}`);
         this.ethernityBoard = new web3.eth.Contract(
             JSON.parse(ethernalContractInterface),
             this.contractAddress
@@ -152,12 +153,19 @@ export default class EthernityBoard {
     }
 
     async writeMessage(message, title, username, link, weiPrice, fromAccount) {
-        await this.ethernityBoard.methods
-            .writeMessage(message, title, username, link, "{}")
-            .send({
-                from: fromAccount,
-                value: weiPrice
-            });
+        try {
+            console.log("writing message inside");
+            await this.ethernityBoard.methods
+                .writeMessage(message, title, username, link, "{}")
+                .send({
+                    from: fromAccount,
+                    value: weiPrice
+                });
+            assert(false);
+        }
+        catch (err){
+            console.log("Detected error inside")
+        }
     }
 
 }

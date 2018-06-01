@@ -4,6 +4,7 @@ import EthernityBoard from '../blockchain/ethernityBoard'
 import {weiToReadableEthString} from "../tools";
 import Countdown from 'react-countdown-now';
 import moment from "moment";
+import ReactTooltip from 'react-tooltip'
 import {BigNumber} from "bignumber.js";
 
 
@@ -19,7 +20,7 @@ class MessageInput extends Component {
             title: '',
             link: '',
             userHasMetamask: false,
-            currentPrice: 0,
+            currentPrice: '0',
             loading: false,
             txSubmitted: false,
             txError: false,
@@ -29,27 +30,32 @@ class MessageInput extends Component {
 
         this.handleEthernalizeClicked = async (event) => {
             event.preventDefault();
+            console.log("ethernalization startin");
 
             this.setState({txError: false});
             this.setState({txSubmitted: false});
             try {
+                console.log("ethernalization startin2");
                 this.setState({loading: true});
-                const gravingPrice = await this.ethernityBoard.getCurrentPrice();
-                const currentAccount = await this.ethernityBoard.getCurrentAccount();
-
                 await this.ethernityBoard.writeMessage(
                     this.state.userMessage,
                     this.state.title,
                     this.state.userName,
                     this.state.link,
-                    gravingPrice,
-                    currentAccount
-                )
+                    this.state.currentPrice,
+                    this.state.currentAccount
+                );
+
+                console.log("After await");
+                this.setState({loading: false});
 
             } catch (err) {
+                this.setState({loading: false});
+                console.log("Error sending transaction.");
                 console.log(err.message);
                 this.setState({txError: true});
             }
+            console.log("Setting .Loading. to false");
             this.setState({loading: false});
             if (!this.state.txError) {
                 this.setState({txSubmitted: true});
@@ -67,11 +73,12 @@ class MessageInput extends Component {
 
 
     async componentDidMount() {
-        const msToExpiry = 6000; // await this.ethernityBoard.getSecondsToExpiry() * 1000;
-        const userBalance = await this.ethernityBoard.getCurrentAccountBalance();
+        const msToExpiry = await this.ethernityBoard.getSecondsToExpiry() * 1000;
         const isLoggedInMetamask = await this.ethernityBoard.isLoggedInMetamask();
+        if (isLoggedInMetamask) {
+            this.setState({currentAccount: await(this.ethernityBoard.getCurrentAccount())});
+        }
         this.setState({isLoggedInMetamask});
-        console.log(`user has ${userBalance}`);
 
         const hasExpired = 0 >= msToExpiry;
         if (hasExpired) {
@@ -81,17 +88,6 @@ class MessageInput extends Component {
             const expirationTime = BigNumber(moment().format('x')).plus(msToExpiry).toString();
             this.setState({hasExpired: false, expirationTime: parseInt(expirationTime)});
         }
-        //     const countdownText = countdown(
-        //         (BigNumber(moment().format('x'))).plus(5000).toString(),
-        //         function (ts) {
-        //             console.log(`ts = ${ts}`);
-        //             // document.getElementById('pageTimer').innerHTML = ts.toHTML("strong");
-        //             this.setState({expiryCountDown: ts.toString()});
-        //         }.bind(this),
-        //
-        //         countdown.HOURS | countdown.MINUTES | countdown.SECONDS).toString();
-        //     this.setState({countdownText: expiryCountDown});
-        // }
         this.setState({userHasMetamask: this.ethernityBoard.doesUserHasMetamask()});
         this.setState({currentPrice: (await this.ethernityBoard.getCurrentPrice())});
 
@@ -101,17 +97,17 @@ class MessageInput extends Component {
     render() {
         const hasMetamaskSetup = this.state.userHasMetamask && this.state.isLoggedInMetamask;
         const canBeEthernalized = hasMetamaskSetup && this.state.hasExpired;
-        console.log(`Rerendering ${this.state.hasExpired}`);
-        const contractLink = this.ethernityBoard.getEtherscanLink(this.ethernityBoard.contractAddress);
         const classes = "ui fluid icon";
         return (
             <Segment>
                 <Dimmer active={this.state.loading} inverted>
-                    <Loader/>
+                    <Loader>
+                        Please wait
+                    </Loader>
                 </Dimmer>
                 <h1 style={{textAlign: "center"}}>Message et<span style={{color: "#777777"}}>h</span>ernalization</h1>
                 <Divider/>
-                <Form error={this.state.txError}>
+                <Form>
                     <Grid>
                         <Grid.Row>
                             <Grid.Column width={6}>
@@ -169,14 +165,19 @@ class MessageInput extends Component {
                         <Grid.Row>
                             <Grid.Column>
                                 {
-                                    this.state.userHasMetamask && this.state.userHasMetamask ? (
-                                        <li><i className="green check icon"/>Metamask detected, looks good.</li>
+                                    hasMetamaskSetup ? (
+                                        <p><i className="green check icon"/>Metamask detected, looks good.</p>
                                     ) : (
-                                        <li><i className="red exclamation triangle icon"/>Either you don't have Metamask installed, or you are not logged into your Metamask account.</li>
+                                        <p><i className="red exclamation triangle icon"/><b>Either you don't have Metamask
+                                            installed, or you are not logged into your Metamask account.</b></p>
                                     )
                                 }
-                                <li><i className="grey info circle icon"/>Tip: Use <a href="https://ethgasstation.info/">https://ethgasstation.info</a> to adjust Gas price in Metamask. High gas price = quick ethernalization.</li>
-                                <li><i className="grey info circle icon"/>Top: The more text you submit, the more gas you'll spend.</li>
+                                <p><i className="grey info circle icon"/>Tip: Use <a
+                                    href="https://ethgasstation.info/">https://ethgasstation.info</a> to adjust Gas
+                                    price in Metamask. High gas price = quick ethernalization.</p>
+                                <p><i className="grey info circle icon"/>Top: The more text you submit, the more gas
+                                    you'll spend.</p>
+
                             </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>
@@ -186,19 +187,29 @@ class MessageInput extends Component {
                         </Grid.Row>
                         <Grid.Row id="inputPriceRow">
                             <Grid.Column width={5}>
-                                <p><i className="blue ethereum icon"/>Price: {weiToReadableEthString(this.state.currentPrice, 10)} ETH</p>
+                                <p><i
+                                    className="blue ethereum icon"/>Price: {weiToReadableEthString(this.state.currentPrice, 10)} ETH
+                                </p>
                             </Grid.Column>
                             <Grid.Column width={5}>
                                 {hasMetamaskSetup &&
                                 (
                                     !this.state.hasExpired ? (
                                         <span><i className="orange exclamation triangle icon"/>Time left:
-                                        <Countdown date={this.state.expirationTime}
-                                                   onComplete={this.onCountdownFinished}
-                                                   daysInHours={true}/>
-                                            <span className="infoText"><i className="info circle icon"/>Why?</span></span>
+                                            <Countdown date={this.state.expirationTime}
+                                                       onComplete={this.onCountdownFinished}
+                                                       daysInHours={true}/>
+                                            <ReactTooltip/>
+                                            <p data-tip="After a message is ethernalized, the smart contract accepts new requests only after 6 hours pass. You need to wait a bit."
+                                               className="infoText"><i className="info circle icon"/>What does it mean?</p>
+                                        </span>
                                     ) : (
-                                        <span><i className="green check icon"/>Ready to ethernalize<span className="infoText"><i className="info circle icon"/>Why?</span></span>
+                                        <span><i className="green check icon"/>Ready to ethernalize
+
+                                            <ReactTooltip/>
+                                            <p data-tip="After a message is ethernalized, the smart contract accepts new requests only after 6 hours pass. The smart contract is now ready."
+                                               className="infoText"><i className="info circle icon"/>What does it mean?</p>
+                                        </span>
                                     )
                                 )
                                 }
@@ -215,7 +226,8 @@ class MessageInput extends Component {
 
                     </Grid>
 
-                    <Message error>
+                    {!!(this.state.txError) &&
+                    <Message>
                         <ul>
                             <li>Transaction failed. Possible reasons are:</li>
                             <ul>
@@ -226,18 +238,19 @@ class MessageInput extends Component {
                             </ul>
                         </ul>
                     </Message>
+                    }
                     {!!(this.state.txSubmitted) &&
-                    <Message className="green">
-                        <ul>
-                            <li>Keep in mind that:</li>
+                        <Message className="green">
                             <ul>
-                                <li>it might take several minutes for your message to appear here,</li>
-                                <li>in case some else's transaction would be confirmed before yours, your Ether will be
-                                    returned back to you.
-                                </li>
+                                <li>Keep in mind that:</li>
+                                <ul>
+                                    <li>it might take several minutes for your message to appear here,</li>
+                                    <li>in case some else's transaction would be confirmed before yours, your Ether will be
+                                        returned back to you.
+                                    </li>
+                                </ul>
                             </ul>
-                        </ul>
-                    </Message>
+                        </Message>
                     }
                 </Form>
             </Segment>

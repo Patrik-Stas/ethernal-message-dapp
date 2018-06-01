@@ -16,6 +16,12 @@ body {
 
 #header * {
   font-family: Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua, Georgia, serif  !important;
+
+}
+
+#header h1 {
+  font-size: 4rem !important;
+
 }
 
 #header-warning {
@@ -34,6 +40,8 @@ body {
   height: 100%;
   z-index: -4;
 }
+
+
 
 
 .historyTableCurrentMessage {
@@ -81,6 +89,7 @@ body {
 #messageTitle {
   padding-top: 2rem;
   padding-bottom: 3rem;
+  font-size: 2rem;
 }
 
 #messageRow {
