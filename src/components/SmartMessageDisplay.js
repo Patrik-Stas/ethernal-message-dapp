@@ -25,8 +25,8 @@ class SmartMessageDisplay extends Component {
 
         this.loadUpMessage = async () => {
             let message = {};
-            this.setState({lastMessageIndex: (parseInt(await this.ethernityBoard.getMessagesCount(), 10)) - 1});
             try {
+                this.setState({lastMessageIndex: (parseInt(await this.ethernityBoard.getMessagesCount(), 10)) - 1});
                 if (this.state.displayedItemIndex > this.state.lastMessageIndex) {
                     this.setState({displayedItemIndex: this.state.lastMessageIndex});
                 }

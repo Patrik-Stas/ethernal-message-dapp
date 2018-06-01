@@ -30,13 +30,10 @@ class MessageInput extends Component {
 
         this.handleEthernalizeClicked = async (event) => {
             event.preventDefault();
-            console.log("ethernalization startin");
-
             this.setState({txError: false});
             this.setState({txSubmitted: false});
+            this.setState({loading: true});
             try {
-                console.log("ethernalization startin2");
-                this.setState({loading: true});
                 await this.ethernityBoard.writeMessage(
                     this.state.userMessage,
                     this.state.title,
@@ -45,8 +42,6 @@ class MessageInput extends Component {
                     this.state.currentPrice,
                     this.state.currentAccount
                 );
-
-                console.log("After await");
                 this.setState({loading: false});
 
             } catch (err) {
@@ -56,7 +51,6 @@ class MessageInput extends Component {
                 this.setState({txError: true});
             }
             console.log("Setting .Loading. to false");
-            this.setState({loading: false});
             if (!this.state.txError) {
                 this.setState({txSubmitted: true});
             }
@@ -79,7 +73,6 @@ class MessageInput extends Component {
             this.setState({currentAccount: await(this.ethernityBoard.getCurrentAccount())});
         }
         this.setState({isLoggedInMetamask});
-
         const hasExpired = 0 >= msToExpiry;
         if (hasExpired) {
             this.setState({hasExpired: true});
@@ -168,8 +161,7 @@ class MessageInput extends Component {
                                     hasMetamaskSetup ? (
                                         <p><i className="green check icon"/>Metamask detected, looks good.</p>
                                     ) : (
-                                        <p><i className="red exclamation triangle icon"/><b>Either you don't have Metamask
-                                            installed, or you are not logged into your Metamask account.</b></p>
+                                        <p><i className="red exclamation triangle icon"/><b>Can't ethernalize. Make sure that</b></p>
                                     )
                                 }
                                 <p><i className="grey info circle icon"/>Tip: Use <a
@@ -226,8 +218,8 @@ class MessageInput extends Component {
 
                     </Grid>
 
-                    {!!(this.state.txError) &&
-                    <Message>
+                    {this.state.txError &&
+                    <Message className="red">
                         <ul>
                             <li>Transaction failed. Possible reasons are:</li>
                             <ul>
@@ -239,7 +231,7 @@ class MessageInput extends Component {
                         </ul>
                     </Message>
                     }
-                    {!!(this.state.txSubmitted) &&
+                    {this.state.txSubmitted &&
                         <Message className="green">
                             <ul>
                                 <li>Keep in mind that:</li>

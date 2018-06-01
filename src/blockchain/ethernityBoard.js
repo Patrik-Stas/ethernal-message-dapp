@@ -1,16 +1,20 @@
 import ethernalContractInterface from '../contract/EthernalMessageBook.interface'
-import web3 from "./engrave-web3";
+// import web3 from "./engrave-web3";
 import {BigNumber} from "bignumber.js";
+import web3 from "./engrave-web3";
+// import Web3 from "web3/index";
+
+
 
 export default class EthernityBoard {
 
     static instance;
 
     constructor() {
-        //
-        // if (this.instance) {
-        //     return this.instance;
-        // }
+
+        if (this.instance) {
+            return this.instance;
+        }
         this.contractAddress = process.env.contract_address;
         this.ethernityBoard = {};
         this.cachedMessages = {};
@@ -19,11 +23,17 @@ export default class EthernityBoard {
 
         // this.instance = this;
         console.log(`Ethernity board constructor. Web3 = ${web3.version}`);
-        this.ethernityBoard = new web3.eth.Contract(
-            JSON.parse(ethernalContractInterface),
-            this.contractAddress
-        );
+        try {
+            this.ethernityBoard = new web3.eth.Contract(
+                JSON.parse(ethernalContractInterface),
+                this.contractAddress
+            );
+        }
+        catch (error){
+            console.log("Contract was not loaded. Your browser has metamask on wrong network, or application has misconfigured contract address.")
+        }
     }
+
 
     async getNumerator() {
         if (!this.multNumerator) {
@@ -152,20 +162,13 @@ export default class EthernityBoard {
         }
     }
 
-    async writeMessage(message, title, username, link, weiPrice, fromAccount) {
-        try {
-            console.log("writing message inside");
-            await this.ethernityBoard.methods
-                .writeMessage(message, title, username, link, "{}")
-                .send({
-                    from: fromAccount,
-                    value: weiPrice
-                });
-            assert(false);
-        }
-        catch (err){
-            console.log("Detected error inside")
-        }
+    writeMessage(message, title, username, link, weiPrice, fromAccount) {
+        return this.ethernityBoard.methods
+            .writeMessage(message, title, username, link, "{}")
+            .send({
+                from: fromAccount,
+                value: weiPrice
+            });
     }
 
 }
