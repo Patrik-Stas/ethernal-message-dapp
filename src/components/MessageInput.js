@@ -72,6 +72,9 @@ class MessageInput extends Component {
         if (isLoggedInMetamask) {
             this.setState({currentAccount: await(this.ethBook.getCurrentAccount())});
         }
+        else {
+            this.setState({currentAccount: undefined});
+        }
         this.setState({isLoggedInMetamask});
         const hasExpired = 0 >= msToExpiry;
         if (hasExpired) {
@@ -81,21 +84,25 @@ class MessageInput extends Component {
             const expirationTime = BigNumber(moment().format('x')).plus(msToExpiry).toString();
             this.setState({hasExpired: false, expirationTime: parseInt(expirationTime)});
         }
-        this.setState({userHasMetamask: this.ethBook.isMetamaskInBrowser});
         this.setState({currentPrice: (await this.ethBook.getCurrentPrice())});
 
     }
 
 
     render() {
-        const hasMetamaskSetup = this.state.userHasMetamask && this.state.isLoggedInMetamask;
+        const hasMetamask = this.ethBook.isMetamaskInBrowser; // window.web3 exists?
+
+        const accountAvailable = !!this.state.currentAccount; // can load selected account?
+        const isMetamaskReady = this.ethBook.isMetamaskWeb3InstanceUsed; // only used, if is on correct network
+
+        const hasMetamaskSetup = hasMetamask && isMetamaskReady && accountAvailable;
         const canBeEthernalized = hasMetamaskSetup && this.state.hasExpired;
         const classes = "ui fluid icon";
         return (
             <Segment>
                 <Dimmer active={this.state.loading} inverted>
                     <Loader>
-                        Please wait
+                        Please wait a bit
                     </Loader>
                 </Dimmer>
                 <h1 style={{textAlign: "center"}}>Message et<span style={{color: "#777777"}}>h</span>ernalization</h1>
@@ -158,10 +165,17 @@ class MessageInput extends Component {
                         <Grid.Row>
                             <Grid.Column>
                                 {
-                                    hasMetamaskSetup ? (
-                                        <p><i className="green check icon"/>Metamask detected, looks good.</p>
+                                    hasMetamask ? (
+                                        <p><i className="green check icon"/>Metamask detected.</p>
                                     ) : (
-                                        <p><i className="red exclamation triangle icon"/><b>Can't ethernalize. Make sure that</b></p>
+                                        <p><i className="red exclamation triangle icon"/><b>Please install <a href="https://metamask.io/"><b>Metamask</b></a>.</b></p>
+                                    )
+                                }
+                                {
+                                    hasMetamaskSetup ? (
+                                        <p><i className="green check icon"/>Logged in Metamask, Main Ethereum Network selected.</p>
+                                    ) : (
+                                        <p><i className="red exclamation triangle icon"/><b>Can't talk to your Metamask. Make sure you are logged in Metamask and selected Main Ethereum Network. Then refresh the page.</b></p>
                                     )
                                 }
                                 <p><i className="grey info circle icon"/>Tip: Use <a
@@ -223,10 +237,10 @@ class MessageInput extends Component {
                         <ul>
                             <li>Transaction failed. Possible reasons are:</li>
                             <ul>
-                                <li>you are not logged in Metamask,</li>
-                                <li>you selected in Metamask network other than Main Ethereum Network,</li>
+                                <li>you rejected transaction,</li>
                                 <li>the account you have selected in Metamask has insufficient balance,</li>
-                                <li>you rejected transaction.</li>
+                                <li>you are not logged in Metamask,</li>
+                                <li>you selected in Metamask network other than Main Ethereum Network.</li>
                             </ul>
                         </ul>
                     </Message>
