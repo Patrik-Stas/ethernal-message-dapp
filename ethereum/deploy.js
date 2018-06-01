@@ -11,7 +11,7 @@ const startPriceWei = BigNumber(Web3.utils.toWei('0.00001', 'ether'));
 
 const contractNumerator = 1618;
 const contractDenumerator = 1000;
-const expireSeconds = 500;
+const expireSeconds = 3600*6;
 
 
 
@@ -53,7 +53,7 @@ const askUser = async() => {
     const accounts = await web3.eth.getAccounts();
     const deployerAccount = accounts[0];
     const gasLimit = '1500000';
-    const gasPriceWei =  web3.utils.toWei('14', "gwei").toString();
+    const gasPriceWei =  web3.utils.toWei('22', "gwei").toString();
 
     console.log('----USING CONFIGURATION : ' + config.util.getEnv('NODE_CONFIG_ENV'));
     console.log(`Mnemonic:${config.get('mnemonic')}`);

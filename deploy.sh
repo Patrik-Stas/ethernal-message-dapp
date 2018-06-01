@@ -29,7 +29,7 @@ echo -e "$GREEN Building new dist.$NC"
 yarn bundle:dev
 
 echo -e "$GREEN Packaging deployment artifact.$NC"
-tar -cvzf "$BUILD_ARTIFACT" "./dist" "package.json" "./node_modules"
+tar -cvzf "$BUILD_ARTIFACT" "./dist"
 
 echo -e "$GREEN Deleting the old deployment files from the server.$NC"
 ssh "centos@$ETHERGUN_SERVER" "mkdir -p $dist_server_location; rm -r $dist_server_location/*"

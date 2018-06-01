@@ -2,6 +2,6 @@
   "network_name":"\"mainnet\"",
   "provider_url": "\"https://mainnet.infura.io/VdDKKPqVuFaJKcLT295A\"",
   "etherscan_base_url": "\"https://etherscan.io\"",
-  "contract_address": "\"0xc63E08cFBa867C03A862BB1c9fb9c83AA096B3A5\"",
+  "contract_address": "\"0x9640f2964cee2b9d4723c96cbc258427a180963c\"",
   "expected_network": 1
 }

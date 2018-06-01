@@ -180,12 +180,12 @@ describe('Messages', () => {
             gas: '1000000'
         });
 
-        const secondsToExpiration = await ethernalBook.methods.getSecondsToExpiry().call();
+        const secondsToExpiration = await ethernalBook.methods.getSecondsToExpiration().call();
         assert.equal(secondsToExpiration, 2);
 
         sleep.msleep(1000);
 
-        const secondsToExpiration2 = await ethernalBook.methods.getSecondsToExpiry().call();
+        const secondsToExpiration2 = await ethernalBook.methods.getSecondsToExpiration().call();
         assert.equal(secondsToExpiration2, 1);
     });
 
